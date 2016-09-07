@@ -13,6 +13,7 @@
 		4CA84E9D1D80362A008E71A9 /* FSMachineProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4CA84E901D80362A008E71A9 /* FSMachineProtocol.swift */; };
 		4CA84EA81D803693008E71A9 /* SwiftFSMBasicTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4CA84EA71D803693008E71A9 /* SwiftFSMBasicTests.swift */; };
 		4CA84EAA1D805B7F008E71A9 /* FSMachineAsync.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4CA84EA91D805B7F008E71A9 /* FSMachineAsync.swift */; };
+		4CA84EAC1D809FB7008E71A9 /* SwiftFSMAsyncTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4CA84EAB1D809FB7008E71A9 /* SwiftFSMAsyncTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -35,6 +36,7 @@
 		4CA84E901D80362A008E71A9 /* FSMachineProtocol.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FSMachineProtocol.swift; sourceTree = "<group>"; };
 		4CA84EA71D803693008E71A9 /* SwiftFSMBasicTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SwiftFSMBasicTests.swift; sourceTree = "<group>"; };
 		4CA84EA91D805B7F008E71A9 /* FSMachineAsync.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FSMachineAsync.swift; sourceTree = "<group>"; };
+		4CA84EAB1D809FB7008E71A9 /* SwiftFSMAsyncTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SwiftFSMAsyncTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -89,6 +91,7 @@
 		4CA84E821D80361D008E71A9 /* SwiftFSMTests */ = {
 			isa = PBXGroup;
 			children = (
+				4CA84EAB1D809FB7008E71A9 /* SwiftFSMAsyncTests.swift */,
 				4CA84EA71D803693008E71A9 /* SwiftFSMBasicTests.swift */,
 				4CA84E851D80361D008E71A9 /* Info.plist */,
 			);
@@ -219,6 +222,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				4CA84EA81D803693008E71A9 /* SwiftFSMBasicTests.swift in Sources */,
+				4CA84EAC1D809FB7008E71A9 /* SwiftFSMAsyncTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

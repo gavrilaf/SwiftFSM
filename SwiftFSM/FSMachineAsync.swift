@@ -27,36 +27,43 @@ public class FSMachineAsync<State, Event> : FSMachineProtocol, FSMachineAsyncPro
     // MARK: FSMachineProtocol
     
     public func setStates(states: [State]) {
+        machine.setStates(states: states)
     }
     
     public func setTerminalStates(initial: State, finish: State?) {
-    
+        machine.setTerminalStates(initial: initial, finish: finish)
     }
     
     public func addStateEnterHandler(state: State, handler: HandlerBlock) {
+        machine.addStateEnterHandler(state: state, handler: handler)
     }
     
     public func addStateLeaveHandler(state: State, handler: HandlerBlock) {
-    
+        machine.addStateLeaveHandler(state: state, handler: handler)
     }
     
     public func addTransition(from: State, to: State, event: Event, condition: ConditionBlock?) {
-    
+        machine.addTransition(from: from, to: to, event: event, condition: condition)
     }
     
     public func setNoTransitionHandler(handler: HandlerBlock) {
-    
+        machine.setNoTransitionHandler(handler: handler)
     }
     
     public func setFinishHandler(handler: FinishBlock) {
-    
+        machine.setFinishHandler(handler: handler)
     }
     
     public func startMachine() {
+        queue.addOperation { [weak self] in
+            self?.machine.startMachine()
+        }
     }
     
     public func processEvent(event: Event) {
-    
+        queue.addOperation { [weak self] in
+            self?.machine.processEvent(event: event)
+        }
     }
     
     public func terminateMachine() {
