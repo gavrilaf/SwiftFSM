@@ -35,3 +35,12 @@ public protocol FSMachineProtocol {
     func isStarted() -> Bool
     func getCurrentState() -> State?
 }
+
+public protocol FSMachineAsyncProtocol {
+    
+    func pauseMachine()
+    func resumeMachine()
+    
+    func clearEventsQueue()
+
+}
