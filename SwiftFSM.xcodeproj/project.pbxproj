@@ -8,8 +8,10 @@
 
 /* Begin PBXBuildFile section */
 		4CA84E7F1D80361D008E71A9 /* SwiftFSM.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4CA84E751D80361D008E71A9 /* SwiftFSM.framework */; };
-		4CA84E841D80361D008E71A9 /* SwiftFSMTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4CA84E831D80361D008E71A9 /* SwiftFSMTests.swift */; };
 		4CA84E861D80361D008E71A9 /* SwiftFSM.h in Headers */ = {isa = PBXBuildFile; fileRef = 4CA84E781D80361D008E71A9 /* SwiftFSM.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		4CA84E9C1D80362A008E71A9 /* FSMachineBasic.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4CA84E8F1D80362A008E71A9 /* FSMachineBasic.swift */; };
+		4CA84E9D1D80362A008E71A9 /* FSMachineProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4CA84E901D80362A008E71A9 /* FSMachineProtocol.swift */; };
+		4CA84EA81D803693008E71A9 /* SwiftFSMBasicTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4CA84EA71D803693008E71A9 /* SwiftFSMBasicTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -27,8 +29,10 @@
 		4CA84E781D80361D008E71A9 /* SwiftFSM.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SwiftFSM.h; sourceTree = "<group>"; };
 		4CA84E791D80361D008E71A9 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		4CA84E7E1D80361D008E71A9 /* SwiftFSMTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SwiftFSMTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		4CA84E831D80361D008E71A9 /* SwiftFSMTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwiftFSMTests.swift; sourceTree = "<group>"; };
 		4CA84E851D80361D008E71A9 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		4CA84E8F1D80362A008E71A9 /* FSMachineBasic.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FSMachineBasic.swift; sourceTree = "<group>"; };
+		4CA84E901D80362A008E71A9 /* FSMachineProtocol.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FSMachineProtocol.swift; sourceTree = "<group>"; };
+		4CA84EA71D803693008E71A9 /* SwiftFSMBasicTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SwiftFSMBasicTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -71,6 +75,8 @@
 		4CA84E771D80361D008E71A9 /* SwiftFSM */ = {
 			isa = PBXGroup;
 			children = (
+				4CA84E901D80362A008E71A9 /* FSMachineProtocol.swift */,
+				4CA84E8F1D80362A008E71A9 /* FSMachineBasic.swift */,
 				4CA84E781D80361D008E71A9 /* SwiftFSM.h */,
 				4CA84E791D80361D008E71A9 /* Info.plist */,
 			);
@@ -80,7 +86,7 @@
 		4CA84E821D80361D008E71A9 /* SwiftFSMTests */ = {
 			isa = PBXGroup;
 			children = (
-				4CA84E831D80361D008E71A9 /* SwiftFSMTests.swift */,
+				4CA84EA71D803693008E71A9 /* SwiftFSMBasicTests.swift */,
 				4CA84E851D80361D008E71A9 /* Info.plist */,
 			);
 			path = SwiftFSMTests;
@@ -149,6 +155,7 @@
 					4CA84E741D80361D008E71A9 = {
 						CreatedOnToolsVersion = 8.0;
 						DevelopmentTeam = YEFMA5VVQR;
+						LastSwiftMigration = 0800;
 						ProvisioningStyle = Automatic;
 					};
 					4CA84E7D1D80361D008E71A9 = {
@@ -198,6 +205,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4CA84E9D1D80362A008E71A9 /* FSMachineProtocol.swift in Sources */,
+				4CA84E9C1D80362A008E71A9 /* FSMachineBasic.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -205,7 +214,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4CA84E841D80361D008E71A9 /* SwiftFSMTests.swift in Sources */,
+				4CA84EA81D803693008E71A9 /* SwiftFSMBasicTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -322,6 +331,7 @@
 		4CA84E8A1D80361D008E71A9 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_IDENTITY = "";
 				DEFINES_MODULE = YES;
 				DEVELOPMENT_TEAM = YEFMA5VVQR;
@@ -334,6 +344,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = gavrilaf.github.com.SwiftFSM;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 3.0;
 			};
 			name = Debug;
@@ -341,6 +352,7 @@
 		4CA84E8B1D80361D008E71A9 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_IDENTITY = "";
 				DEFINES_MODULE = YES;
 				DEVELOPMENT_TEAM = YEFMA5VVQR;
@@ -360,6 +372,7 @@
 		4CA84E8D1D80361D008E71A9 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				DEVELOPMENT_TEAM = YEFMA5VVQR;
 				INFOPLIST_FILE = SwiftFSMTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
@@ -372,6 +385,7 @@
 		4CA84E8E1D80361D008E71A9 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				DEVELOPMENT_TEAM = YEFMA5VVQR;
 				INFOPLIST_FILE = SwiftFSMTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
