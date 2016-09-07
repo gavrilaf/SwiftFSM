@@ -28,12 +28,12 @@ class SwiftFSMBasicTests: XCTestCase {
         // (.1) - 12 -> (2) - 23 -> (3.)
         //
         
+        var callsCounter = 0
+        
         let machine = FSMachineBasic<Int, Int>()
         
         machine.setStates(states: [1, 2, 3])
         machine.setTerminalStates(initial: 1, finish: 3)
-        
-        var callsCounter = 0
         
         machine.addStateEnterHandler(state: 2) { (state, event) in
             XCTAssert(state == 2)
@@ -67,6 +67,10 @@ class SwiftFSMBasicTests: XCTestCase {
         machine.addTransition(from: 2, to: 3, event: 23, condition: nil)
         
         machine.startMachine()
+        
+        XCTAssert(machine.isStarted() == true)
+        XCTAssert(machine.getCurrentState() == 1)
+        
         machine.processEvent(event: 12)
         machine.processEvent(event: 23)
         
@@ -74,5 +78,56 @@ class SwiftFSMBasicTests: XCTestCase {
         XCTAssert(machine.getCurrentState() == 3)
     }
     
+    func testConditionalFSM() {
+        //
+        //    (1)--12 (if !condition) -> (1)
+        //    |
+        //    |-12 (if condition) -> (2) - 23 -> (3.)
+        //
+    
+        var callsCounter = 0
+        var condition = false
+        
+        let machine = FSMachineBasic<Int, Int>()
+        
+        machine.setStates(states: [1, 2, 3])
+        machine.setTerminalStates(initial: 1, finish: 3)
+        
+        machine.addStateEnterHandler(state: 1) {_,_ in 
+            callsCounter += 1
+        }
+        
+        machine.addTransition(from: 1, to: 2, event: 12) { (from, to, event) -> Bool in
+            XCTAssert(from == 1)
+            XCTAssert(to == 2)
+            XCTAssert(event == 12)
+            return condition
+        }
+        
+        machine.addTransition(from: 1, to: 1, event: 12) { (from, to, event) -> Bool in
+            XCTAssert(from == 1)
+            XCTAssert(to == 1)
+            XCTAssert(event == 12)
+            return !condition
+        }
+        
+        machine.addTransition(from: 2, to: 3, event: 23, condition: nil)
+        
+        machine.startMachine() // state(1), callsCounter = 1
+        
+        machine.processEvent(event: 12) // state(1), callsCounter = 2
+        machine.processEvent(event: 12) // state(1), callsCounter = 3
+        
+        XCTAssert(callsCounter == 3)
+        XCTAssert(machine.getCurrentState() == 1)
+        
+        condition = true
+        
+        machine.processEvent(event: 12) // state(2)
+        machine.processEvent(event: 23) // state(3), finished
+        
+        XCTAssert(machine.getCurrentState() == 3)
+        XCTAssert(machine.isStarted() == false)
+    }
     
 }
