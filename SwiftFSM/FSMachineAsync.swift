@@ -56,13 +56,17 @@ public class FSMachineAsync<State, Event> : FSMachineProtocol, FSMachineAsyncPro
     
     public func startMachine() {
         queue.addOperation { [weak self] in
-            self?.machine.startMachine()
+            self?.syncBlock {
+                self?.machine.startMachine()
+            }
         }
     }
     
     public func processEvent(event: Event) {
         queue.addOperation { [weak self] in
-            self?.machine.processEvent(event: event)
+            self?.syncBlock {
+                self?.machine.processEvent(event: event)
+            }
         }
     }
     
@@ -71,11 +75,25 @@ public class FSMachineAsync<State, Event> : FSMachineProtocol, FSMachineAsyncPro
     }
     
     public func isStarted() -> Bool {
-        return machine.isStarted()
+        
+        var isStarted: Bool = false
+        
+        syncBlock {
+            isStarted = machine.isStarted()
+        }
+        
+        return isStarted
     }
     
     public func getCurrentState() -> State? {
-        return machine.getCurrentState()
+        
+        var state: State? = nil
+        
+        syncBlock {
+            state = machine.getCurrentState()
+        }
+        
+        return state
     }
     
     // MARK: FSMachineAsyncProtocol
@@ -87,6 +105,17 @@ public class FSMachineAsync<State, Event> : FSMachineProtocol, FSMachineAsyncPro
     }
     
     public func clearEventsQueue() {
+    }
+    
+    // MARK:
+    
+    private func syncBlock(block: () -> Void) {
+        defer {
+            lock.unlock()
+        }
+        
+        lock.lock()
+        block()
     }
 
     // MARK:

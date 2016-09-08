@@ -51,17 +51,15 @@ class SwiftFSMAsyncTests: XCTestCase {
         machine.addTransition(from: 2, to: 3, event: 23, condition: nil)
         machine.addTransition(from: 3, to: 4, event: 34, condition: nil)
         
-        
         machine.startMachine()
         
         waitForExpectations(timeout: 1.0) { (error) in
             print("\(error)")
             XCTAssert(error == nil)
+            
+            XCTAssert(machine.isStarted() == false)
+            XCTAssert(machine.getCurrentState() == 4)
         }
-        
-        
-        
-        
     }
     
 }
