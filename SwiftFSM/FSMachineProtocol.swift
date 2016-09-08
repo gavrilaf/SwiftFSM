@@ -38,9 +38,7 @@ public protocol FSMachineProtocol {
 
 public protocol FSMachineAsyncProtocol {
     
-    func pauseMachine()
-    func resumeMachine()
+    var isPaused: Bool { get set }
     
-    func clearEventsQueue()
-
+    func cancelAllEvents()
 }

@@ -8,8 +8,7 @@
 
 import Foundation
 
-public class FSMachineAsync<State, Event> : FSMachineProtocol, FSMachineAsyncProtocol
-    where State: Hashable, Event: Hashable {
+public class FSMachineAsync<State, Event> : FSMachineProtocol where State: Hashable, Event: Hashable {
     
     public typealias ConditionBlock = (State, State, Event) -> Bool
     public typealias HandlerBlock = (State, Event?) -> Void
@@ -71,7 +70,11 @@ public class FSMachineAsync<State, Event> : FSMachineProtocol, FSMachineAsyncPro
     }
     
     public func terminateMachine() {
-    
+       cancelAllEvents()
+        
+        syncBlock {
+            machine.terminateMachine()
+        }
     }
     
     public func isStarted() -> Bool {
@@ -96,17 +99,6 @@ public class FSMachineAsync<State, Event> : FSMachineProtocol, FSMachineAsyncPro
         return state
     }
     
-    // MARK: FSMachineAsyncProtocol
-    
-    public func pauseMachine() {
-    }
-    
-    public func resumeMachine() {
-    }
-    
-    public func clearEventsQueue() {
-    }
-    
     // MARK:
     
     private func syncBlock(block: () -> Void) {
@@ -124,4 +116,21 @@ public class FSMachineAsync<State, Event> : FSMachineProtocol, FSMachineAsyncPro
     let queue: OperationQueue
     let lock: NSLock
 
+}
+
+extension FSMachineAsync: FSMachineAsyncProtocol {
+    
+    public var isPaused: Bool {
+        get {
+            return queue.isSuspended
+        }
+        
+        set {
+            queue.isSuspended = isPaused
+        }
+    }
+    
+    public func cancelAllEvents() {
+        queue.cancelAllOperations()
+    }
 }
