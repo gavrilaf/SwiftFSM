@@ -32,24 +32,24 @@ class SwiftFSMBasicTests: XCTestCase {
         
         let machine = FSMachineBasic<Int, Int>()
         
-        machine.setStates(states: [1, 2, 3])
-        machine.setTerminalStates(initial: 1, finish: 3)
+        try! machine.setStates(states: [1, 2, 3])
+        try! machine.setTerminalStates(initial: 1, finish: 3)
         
-        machine.addStateEnterHandler(state: 2) { (state, event) in
+        try! machine.addStateEnterHandler(state: 2) { (state, event) in
             XCTAssert(state == 2)
             XCTAssert(event == 12)
             
             callsCounter += 1
         }
         
-        machine.addStateLeaveHandler(state: 2) { (state, event) in
+        try! machine.addStateLeaveHandler(state: 2) { (state, event) in
             XCTAssert(state == 2)
             XCTAssert(event == 23)
             
             callsCounter += 1
         }
         
-        machine.addStateEnterHandler(state: 3) { (state, event) in
+        try! machine.addStateEnterHandler(state: 3) { (state, event) in
             XCTAssert(state == 3)
             XCTAssert(event == 23)
             
@@ -63,8 +63,8 @@ class SwiftFSMBasicTests: XCTestCase {
             XCTAssert(callsCounter == 3)
         }
         
-        machine.addTransition(from: 1, to: 2, event: 12, condition: nil)
-        machine.addTransition(from: 2, to: 3, event: 23, condition: nil)
+        try! machine.addTransition(from: 1, to: 2, event: 12, condition: nil)
+        try! machine.addTransition(from: 2, to: 3, event: 23, condition: nil)
         
         machine.startMachine()
         
@@ -90,28 +90,28 @@ class SwiftFSMBasicTests: XCTestCase {
         
         let machine = FSMachineBasic<Int, Int>()
         
-        machine.setStates(states: [1, 2, 3])
-        machine.setTerminalStates(initial: 1, finish: 3)
+        try! machine.setStates(states: [1, 2, 3])
+        try! machine.setTerminalStates(initial: 1, finish: 3)
         
-        machine.addStateEnterHandler(state: 1) {_,_ in 
+        try! machine.addStateEnterHandler(state: 1) {_,_ in
             callsCounter += 1
         }
         
-        machine.addTransition(from: 1, to: 2, event: 12) { (from, to, event) -> Bool in
+        try! machine.addTransition(from: 1, to: 2, event: 12) { (from, to, event) -> Bool in
             XCTAssert(from == 1)
             XCTAssert(to == 2)
             XCTAssert(event == 12)
             return condition
         }
         
-        machine.addTransition(from: 1, to: 1, event: 12) { (from, to, event) -> Bool in
+        try! machine.addTransition(from: 1, to: 1, event: 12) { (from, to, event) -> Bool in
             XCTAssert(from == 1)
             XCTAssert(to == 1)
             XCTAssert(event == 12)
             return !condition
         }
         
-        machine.addTransition(from: 2, to: 3, event: 23, condition: nil)
+        try! machine.addTransition(from: 2, to: 3, event: 23, condition: nil)
         
         machine.startMachine() // state(1), callsCounter = 1
         

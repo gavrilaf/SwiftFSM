@@ -25,32 +25,40 @@ public class FSMachineAsync<State, Event> : FSMachineProtocol where State: Hasha
     
     // MARK: FSMachineProtocol
     
-    public func setStates(states: [State]) {
-        machine.setStates(states: states)
+    public func setStates(states: [State]) throws {
+        try machine.setStates(states: states)
     }
     
-    public func setTerminalStates(initial: State, finish: State?) {
-        machine.setTerminalStates(initial: initial, finish: finish)
+    public func setTerminalStates(initial: State, finish: State?) throws {
+        try machine.setTerminalStates(initial: initial, finish: finish)
     }
     
-    public func addStateEnterHandler(state: State, handler: HandlerBlock) {
-        machine.addStateEnterHandler(state: state, handler: handler)
+    public func addStateEnterHandler(state: State, handler: HandlerBlock) throws {
+        try machine.addStateEnterHandler(state: state, handler: handler)
     }
     
-    public func addStateLeaveHandler(state: State, handler: HandlerBlock) {
-        machine.addStateLeaveHandler(state: state, handler: handler)
+    public func addStateLeaveHandler(state: State, handler: HandlerBlock) throws {
+        try machine.addStateLeaveHandler(state: state, handler: handler)
     }
     
-    public func addTransition(from: State, to: State, event: Event, condition: ConditionBlock?) {
-        machine.addTransition(from: from, to: to, event: event, condition: condition)
+    public func addStateNoTransitionHandler(state: State, handler: HandlerBlock) throws {
+        try machine.addStateNoTransitionHandler(state: state, handler: handler)
     }
     
-    public func setNoTransitionHandler(handler: HandlerBlock) {
-        machine.setNoTransitionHandler(handler: handler)
+    public func addTransition(from: State, to: State, event: Event, condition: ConditionBlock?) throws {
+        try machine.addTransition(from: from, to: to, event: event, condition: condition)
+    }
+    
+    public func setGlobalNoTransitionHandler(handler: HandlerBlock) {
+        machine.setGlobalNoTransitionHandler(handler: handler)
     }
     
     public func setFinishHandler(handler: FinishBlock) {
         machine.setFinishHandler(handler: handler)
+    }
+    
+    public func setErrorHandler(handler: ((Error) -> Void)) {
+        machine.setErrorHandler(handler: handler)
     }
     
     public func startMachine() {

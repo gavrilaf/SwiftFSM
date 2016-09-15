@@ -28,28 +28,28 @@ class SwiftFSMAsyncTests: XCTestCase {
         
         let machine = FSMachineAsync<Int, Int>()
         
-        machine.setStates(states: [1, 2, 3, 4])
-        machine.setTerminalStates(initial: 1, finish: 4)
+        try! machine.setStates(states: [1, 2, 3, 4])
+        try! machine.setTerminalStates(initial: 1, finish: 4)
         
-        machine.addStateEnterHandler(state: 1) {_,_ in 
+        try! machine.addStateEnterHandler(state: 1) {_,_ in
             machine.processEvent(event: 12)
         }
         
-        machine.addStateEnterHandler(state: 2) {_,_ in
+        try! machine.addStateEnterHandler(state: 2) {_,_ in
             machine.processEvent(event: 23)
         }
         
-        machine.addStateEnterHandler(state: 3) {_,_ in
+        try! machine.addStateEnterHandler(state: 3) {_,_ in
             machine.processEvent(event: 34)
         }
         
-        machine.addStateEnterHandler(state: 4) {_,_ in
+        try! machine.addStateEnterHandler(state: 4) {_,_ in
             expectation.fulfill()
         }
         
-        machine.addTransition(from: 1, to: 2, event: 12, condition: nil)
-        machine.addTransition(from: 2, to: 3, event: 23, condition: nil)
-        machine.addTransition(from: 3, to: 4, event: 34, condition: nil)
+        try! machine.addTransition(from: 1, to: 2, event: 12, condition: nil)
+        try! machine.addTransition(from: 2, to: 3, event: 23, condition: nil)
+        try! machine.addTransition(from: 3, to: 4, event: 34, condition: nil)
         
         machine.startMachine()
         

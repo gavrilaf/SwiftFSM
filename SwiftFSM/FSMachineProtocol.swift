@@ -16,16 +16,18 @@ public protocol FSMachineProtocol {
     typealias HandlerBlock = (State, Event?) -> Void
     typealias FinishBlock = (State, Bool) -> Void
     
-    func setStates(states: [State])
-    func setTerminalStates(initial: State, finish: State?)
+    func setStates(states: [State]) throws
+    func setTerminalStates(initial: State, finish: State?) throws
     
-    func addStateEnterHandler(state: State, handler: HandlerBlock)
-    func addStateLeaveHandler(state: State, handler: HandlerBlock)
+    func addStateEnterHandler(state: State, handler: HandlerBlock) throws
+    func addStateLeaveHandler(state: State, handler: HandlerBlock) throws
+    func addStateNoTransitionHandler(state: State, handler: HandlerBlock) throws
     
-    func addTransition(from: State, to: State, event: Event, condition: ConditionBlock?)
+    func addTransition(from: State, to: State, event: Event, condition: ConditionBlock?) throws
     
-    func setNoTransitionHandler(handler: HandlerBlock)
+    func setGlobalNoTransitionHandler(handler: HandlerBlock)
     func setFinishHandler(handler: FinishBlock)
+    func setErrorHandler(handler: ((Error) -> Void))
     
     func startMachine()
     func processEvent(event: Event)
@@ -37,8 +39,15 @@ public protocol FSMachineProtocol {
 }
 
 public protocol FSMachineAsyncProtocol {
-    
     var isPaused: Bool { get set }
-    
     func cancelAllEvents()
+}
+
+
+enum FSMachineError : Error {
+    case UnknowState(state: AnyObject)
+    case Unexpected(msg: String)
+    case NoInitialState
+    case NotStarted
+    case AlreadyStarted
 }
