@@ -30,26 +30,29 @@ class SwiftFSMBasicTests: XCTestCase {
         
         var callsCounter = 0
         
-        let machine = FSMachineBasic<Int, Int>()
+        let machine = FSMBasic<Int, Int>()
         
         try! machine.setStates(states: [1, 2, 3])
         try! machine.setTerminalStates(initial: 1, finish: 3)
         
-        try! machine.addStateEnterHandler(state: 2) { (state, event) in
+        try! machine.addTransition(from: 1, to: 2, event: 12, condition: nil)
+        try! machine.addTransition(from: 2, to: 3, event: 23, condition: nil)
+        
+        try! machine.addEnterHandler(forState: 2) { (state, event) in
             XCTAssert(state == 2)
             XCTAssert(event == 12)
             
             callsCounter += 1
         }
         
-        try! machine.addStateLeaveHandler(state: 2) { (state, event) in
+        try! machine.addLeaveHandler(forState: 2) { (state, event) in
             XCTAssert(state == 2)
             XCTAssert(event == 23)
             
             callsCounter += 1
         }
         
-        try! machine.addStateEnterHandler(state: 3) { (state, event) in
+        try! machine.addEnterHandler(forState: 3) { (state, event) in
             XCTAssert(state == 3)
             XCTAssert(event == 23)
             
@@ -63,19 +66,16 @@ class SwiftFSMBasicTests: XCTestCase {
             XCTAssert(callsCounter == 3)
         }
         
-        try! machine.addTransition(from: 1, to: 2, event: 12, condition: nil)
-        try! machine.addTransition(from: 2, to: 3, event: 23, condition: nil)
-        
         machine.startMachine()
         
-        XCTAssert(machine.isStarted() == true)
-        XCTAssert(machine.getCurrentState() == 1)
+        XCTAssert(machine.isStarted == true)
+        XCTAssert(machine.currentState == 1)
         
         machine.processEvent(event: 12)
         machine.processEvent(event: 23)
         
-        XCTAssert(machine.isStarted() == false)
-        XCTAssert(machine.getCurrentState() == 3)
+        XCTAssert(machine.isStarted == false)
+        XCTAssert(machine.currentState == 3)
     }
     
     func testConditionalFSM() {
@@ -88,14 +88,10 @@ class SwiftFSMBasicTests: XCTestCase {
         var callsCounter = 0
         var condition = false
         
-        let machine = FSMachineBasic<Int, Int>()
+        let machine = FSMBasic<Int, Int>()
         
         try! machine.setStates(states: [1, 2, 3])
         try! machine.setTerminalStates(initial: 1, finish: 3)
-        
-        try! machine.addStateEnterHandler(state: 1) {_,_ in
-            callsCounter += 1
-        }
         
         try! machine.addTransition(from: 1, to: 2, event: 12) { (from, to, event) -> Bool in
             XCTAssert(from == 1)
@@ -113,21 +109,26 @@ class SwiftFSMBasicTests: XCTestCase {
         
         try! machine.addTransition(from: 2, to: 3, event: 23, condition: nil)
         
+        
+        try! machine.addEnterHandler(forState: 1) {_,_ in
+            callsCounter += 1
+        }
+        
         machine.startMachine() // state(1), callsCounter = 1
         
         machine.processEvent(event: 12) // state(1), callsCounter = 2
         machine.processEvent(event: 12) // state(1), callsCounter = 3
         
         XCTAssert(callsCounter == 3)
-        XCTAssert(machine.getCurrentState() == 1)
+        XCTAssert(machine.currentState == 1)
         
         condition = true
         
         machine.processEvent(event: 12) // state(2)
         machine.processEvent(event: 23) // state(3), finished
         
-        XCTAssert(machine.getCurrentState() == 3)
-        XCTAssert(machine.isStarted() == false)
+        XCTAssert(machine.currentState == 3)
+        XCTAssert(machine.isStarted == false)
     }
     
 }

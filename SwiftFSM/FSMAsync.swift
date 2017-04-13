@@ -8,14 +8,15 @@
 
 import Foundation
 
-public class FSMachineAsync<State, Event> : FSMachineProtocol where State: Hashable, Event: Hashable {
+public class FSMAsync<State, Event> : FSMAsyncProtocol where State: Hashable, Event: Hashable {
     
     public typealias ConditionBlock = (State, State, Event) -> Bool
     public typealias HandlerBlock = (State, Event?) -> Void
     public typealias FinishBlock = (State, Bool) -> Void
-    
+    public typealias ErrorBlock = (Error) -> Void
+
     public init() {
-        machine = FSMachineBasic<State, Event>()
+        machine = FSMBasic<State, Event>()
         
         queue = OperationQueue()
         queue.maxConcurrentOperationCount = 1
@@ -23,7 +24,36 @@ public class FSMachineAsync<State, Event> : FSMachineProtocol where State: Hasha
         lock = NSLock()
     }
     
-    // MARK: FSMachineProtocol
+    // MARK: FSMAsyncProtocol
+    public var isPaused: Bool {
+        get {
+            return queue.isSuspended
+        }
+        
+        set {
+            queue.isSuspended = isPaused
+        }
+    }
+    
+    public func cancelAllEvents() {
+        queue.cancelAllOperations()
+    }
+
+    
+    // MARK: FSMProtocol
+    public var logger: FSMLogger {
+        get { return machine.logger }
+        set { machine.logger = newValue }
+    }
+    
+    public var isStarted: Bool {
+        return machine.isStarted
+    }
+    
+    public var currentState: State? {
+        return machine.currentState
+    }
+    
     
     public func setStates(states: [State]) throws {
         try machine.setStates(states: states)
@@ -33,31 +63,31 @@ public class FSMachineAsync<State, Event> : FSMachineProtocol where State: Hasha
         try machine.setTerminalStates(initial: initial, finish: finish)
     }
     
-    public func addStateEnterHandler(state: State, handler: HandlerBlock) throws {
-        try machine.addStateEnterHandler(state: state, handler: handler)
+    public func addEnterHandler(forState state: State, handler: @escaping HandlerBlock) throws {
+        try machine.addEnterHandler(forState: state, handler: handler)
     }
     
-    public func addStateLeaveHandler(state: State, handler: HandlerBlock) throws {
-        try machine.addStateLeaveHandler(state: state, handler: handler)
+    public func addLeaveHandler(forState state: State, handler: @escaping HandlerBlock) throws {
+        try machine.addLeaveHandler(forState: state, handler: handler)
     }
     
-    public func addStateNoTransitionHandler(state: State, handler: HandlerBlock) throws {
-        try machine.addStateNoTransitionHandler(state: state, handler: handler)
+    public func addNoTransitionHandler(forState state: State, handler: @escaping HandlerBlock) throws {
+        try machine.addNoTransitionHandler(forState: state, handler: handler)
     }
     
     public func addTransition(from: State, to: State, event: Event, condition: ConditionBlock?) throws {
         try machine.addTransition(from: from, to: to, event: event, condition: condition)
     }
     
-    public func setGlobalNoTransitionHandler(handler: HandlerBlock) {
+    public func setGlobalNoTransitionHandler(handler: @escaping HandlerBlock) {
         machine.setGlobalNoTransitionHandler(handler: handler)
     }
     
-    public func setFinishHandler(handler: FinishBlock) {
+    public func setFinishHandler(handler: @escaping FinishBlock) {
         machine.setFinishHandler(handler: handler)
     }
     
-    public func setErrorHandler(handler: ((Error) -> Void)) {
+    public func setErrorHandler(handler: @escaping ErrorBlock) {
         machine.setErrorHandler(handler: handler)
     }
     
@@ -85,27 +115,6 @@ public class FSMachineAsync<State, Event> : FSMachineProtocol where State: Hasha
         }
     }
     
-    public func isStarted() -> Bool {
-        
-        var isStarted: Bool = false
-        
-        syncBlock {
-            isStarted = machine.isStarted()
-        }
-        
-        return isStarted
-    }
-    
-    public func getCurrentState() -> State? {
-        
-        var state: State? = nil
-        
-        syncBlock {
-            state = machine.getCurrentState()
-        }
-        
-        return state
-    }
     
     // MARK:
     
@@ -120,25 +129,10 @@ public class FSMachineAsync<State, Event> : FSMachineProtocol where State: Hasha
 
     // MARK:
     
-    let machine: FSMachineBasic<State, Event>
+    let machine: FSMBasic<State, Event>
     let queue: OperationQueue
     let lock: NSLock
-
 }
+ 
+ 
 
-extension FSMachineAsync: FSMachineAsyncProtocol {
-    
-    public var isPaused: Bool {
-        get {
-            return queue.isSuspended
-        }
-        
-        set {
-            queue.isSuspended = isPaused
-        }
-    }
-    
-    public func cancelAllEvents() {
-        queue.cancelAllOperations()
-    }
-}

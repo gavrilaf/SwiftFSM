@@ -26,24 +26,24 @@ class SwiftFSMAsyncTests: XCTestCase {
         let expectation = self.expectation(description: "")
         
         
-        let machine = FSMachineAsync<Int, Int>()
+        let machine = FSMAsync<Int, Int>()
         
         try! machine.setStates(states: [1, 2, 3, 4])
         try! machine.setTerminalStates(initial: 1, finish: 4)
         
-        try! machine.addStateEnterHandler(state: 1) {_,_ in
+        try! machine.addEnterHandler(forState: 1) { (_,_) in
             machine.processEvent(event: 12)
         }
         
-        try! machine.addStateEnterHandler(state: 2) {_,_ in
+        try! machine.addEnterHandler(forState: 2) { (_,_) in
             machine.processEvent(event: 23)
         }
         
-        try! machine.addStateEnterHandler(state: 3) {_,_ in
+        try! machine.addEnterHandler(forState: 3) { (_,_) in
             machine.processEvent(event: 34)
         }
         
-        try! machine.addStateEnterHandler(state: 4) {_,_ in
+        try! machine.addEnterHandler(forState: 4) { (_,_) in
             expectation.fulfill()
         }
         
@@ -54,11 +54,10 @@ class SwiftFSMAsyncTests: XCTestCase {
         machine.startMachine()
         
         waitForExpectations(timeout: 1.0) { (error) in
-            print("\(error)")
-            XCTAssert(error == nil)
             
-            XCTAssert(machine.isStarted() == false)
-            XCTAssert(machine.getCurrentState() == 4)
+            XCTAssertNil(error)
+            XCTAssertFalse(machine.isStarted)
+            XCTAssertEqual(machine.currentState, 4)
         }
     }
     

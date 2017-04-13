@@ -1,5 +1,5 @@
 //
-//  FSMachineBasic.swift
+//  FSMBasic.swift
 //  Swift-FSM
 //
 //  Created by Eugen Fedchenko on 9/7/16.
@@ -8,32 +8,52 @@
 
 import Foundation
 
-public class FSMachineBasic<State, Event> : FSMachineProtocol where State: Hashable, Event: Hashable {
+public class FSMBasic<State, Event> : FSMProtocol where State: Hashable, Event: Hashable {
     
     public typealias ConditionBlock = (State, State, Event) -> Bool
     public typealias HandlerBlock = (State, Event?) -> Void
     public typealias FinishBlock = (State, Bool) -> Void
-    
+    public typealias ErrorBlock = (Error) -> Void
+        
     public init() {
         noTransitionHandler = {
-            print("No transition from state \($0) with event \($1)")
+            self.logger.debugLog("No transition from state \($0) with event \(String(describing: $1))")
         }
         
         finishHandler = {
-            print("Machine finished with state \($0), terminating \($1)")
+            self.logger.debugLog("Machine finished with state \($0), terminating \($1)")
         }
         
         errorHandler = {
-            print("Unexpected error: \($0)")
+            self.logger.debugLog("Unexpected error: \($0)")
         }
     }
     
     
-    // MARK: public
-    public func setStates(states: [State]) throws {
+    // MARK: State
+    
+    public var logger: FSMLogger {
+        get {
+            return _logger
+        }
         
+        set {
+            _logger = newValue
+        }
+    }
+    
+    public var currentState: State? {
+        return _currentState
+    }
+    
+    public var isStarted: Bool {
+        return started
+    }
+    
+    // MARK: Setup
+    public func setStates(states: [State]) throws {
         guard !started else {
-            throw FSMachineError.AlreadyStarted
+            throw FSMError.alreadyStarted
         }
         
         // clear previous states
@@ -49,18 +69,17 @@ public class FSMachineBasic<State, Event> : FSMachineProtocol where State: Hasha
     }
     
     public func setTerminalStates(initial: State, finish: State?) throws {
-        
         guard !started else {
-            throw FSMachineError.AlreadyStarted
+            throw FSMError.alreadyStarted
         }
         
         guard machine[initial] != nil else {
-            throw FSMachineError.UnknowState(state: initial as AnyObject)
+            throw FSMError.unknowState(state: initial as AnyObject)
         }
         
         if let finish = finish {
             guard machine[finish] != nil else {
-                throw FSMachineError.UnknowState(state: finish as AnyObject)
+                throw FSMError.unknowState(state: finish as AnyObject)
             }
         }
         
@@ -68,76 +87,75 @@ public class FSMachineBasic<State, Event> : FSMachineProtocol where State: Hasha
         finishState = finish
     }
     
-    public func addStateEnterHandler(state: State, handler: HandlerBlock) throws {
+    public func addEnterHandler(forState state: State, handler: @escaping HandlerBlock) throws {
         guard var definition = machine[state] else {
-            throw FSMachineError.UnknowState(state: state as AnyObject)
+            throw FSMError.unknowState(state: state as AnyObject)
         }
         
         definition.handlers.enter.append(handler)
         machine[state] = definition
     }
     
-    public func addStateLeaveHandler(state: State, handler: HandlerBlock) throws {
+    public func addLeaveHandler(forState state: State, handler: @escaping HandlerBlock) throws {
         guard var definition = machine[state] else {
-            throw FSMachineError.UnknowState(state: state as AnyObject)
+            throw FSMError.unknowState(state: state as AnyObject)
         }
         
         definition.handlers.leave.append(handler)
         machine[state] = definition
     }
     
-    public func addStateNoTransitionHandler(state: State, handler: HandlerBlock) throws {
+    public func addNoTransitionHandler(forState state: State, handler: @escaping HandlerBlock) throws {
         guard var definition = machine[state] else {
-            throw FSMachineError.UnknowState(state: state as AnyObject)
+            throw FSMError.unknowState(state: state as AnyObject)
         }
         
         definition.handlers.noTransition.append(handler)
         machine[state] = definition
     }
     
-    
     public func addTransition(from: State, to: State, event: Event, condition: ConditionBlock?) throws {
         guard machine[to] != nil else {
-            throw FSMachineError.UnknowState(state: to as AnyObject)
+            throw FSMError.unknowState(state: to as AnyObject)
         }
         
         guard var definition = machine[from] else {
-            throw FSMachineError.UnknowState(state: from as AnyObject)
+            throw FSMError.unknowState(state: from as AnyObject)
         }
         
+        
+        var transitions = definition.transitionsMap[event] ?? Transitions()
         let transition: Transition = (condition: condition, stateTo: to)
-        var transitions: Transitions? = definition.transitionsMap[event]
         
-        if transitions != nil {
-            transitions!.append(transition)
-        } else {
-            transitions = [transition]
-        }
+        transitions.append(transition)
         
         definition.transitionsMap[event] = transitions
         machine[from] = definition
     }
     
-    public func setGlobalNoTransitionHandler(handler: HandlerBlock) {
+    public func setGlobalNoTransitionHandler(handler: @escaping HandlerBlock) {
         noTransitionHandler = handler
     }
     
-    public func setFinishHandler(handler: FinishBlock) {
+    public func setFinishHandler(handler: @escaping FinishBlock) {
         finishHandler = handler
     }
     
-    public func setErrorHandler(handler: ((Error) -> Void)) {
+    public func setErrorHandler(handler: @escaping ErrorBlock) {
         errorHandler = handler
     }
     
+    
+    // MARK: Manage machine
+    
     public func startMachine() {
         guard !started else {
-            errorHandler(FSMachineError.AlreadyStarted)
+            errorHandler(FSMError.alreadyStarted)
             return
         }
         
         guard let initialState = initialState else {
-            errorHandler(FSMachineError.NoInitialState)
+            errorHandler(FSMError.noInitialState)
             return
         }
         
@@ -146,26 +164,25 @@ public class FSMachineBasic<State, Event> : FSMachineProtocol where State: Hasha
     }
     
     public func processEvent(event: Event) {
-        
-        print("Event -> \(event), started=\(started), currentState=\(currentState)")
+        logger.debugLog("process: event(\(event)), started(\(started)), currentState(\(String(describing: currentState)))")
         
         guard started else {
-            errorHandler(FSMachineError.NotStarted)
+            errorHandler(FSMError.notStarted)
             return
         }
         
-        guard var currentState = currentState else {
-            errorHandler(FSMachineError.Unexpected(msg: "Null currentState"))
+        guard let state = currentState else {
+            errorHandler(FSMError.unexpected(msg: "currentState == nil"))
             return
         }
         
-        guard let definition = machine[currentState] else {
-            errorHandler(FSMachineError.Unexpected(msg: "Nil definition for state \(currentState)"))
+        guard let definition = machine[state] else {
+            errorHandler(FSMError.unexpected(msg: "Couldn't find definition for state \(state)"))
             return
         }
         
         guard let transitions = definition.transitionsMap[event] else {
-            errorHandler(FSMachineError.Unexpected(msg: "Nil transitions table for state \(currentState)"))
+            errorHandler(FSMError.unexpected(msg: "Nil transitions table for state \(state)"))
             return
         }
         
@@ -173,29 +190,30 @@ public class FSMachineBasic<State, Event> : FSMachineProtocol where State: Hasha
         
         // looking for suitable transition
         for transition in transitions {
-            if transition.condition == nil || transition.condition!(currentState, transition.stateTo, event) {
-                currentState = updateState(newState: transition.stateTo, withEvent: event)
+            if transition.condition == nil || transition.condition!(state, transition.stateTo, event) {
+                _currentState = updateState(newState: transition.stateTo, withEvent: event)
                 processed = true
                 break
             }
         }
         
         // no transition, looking for noTransition handlers for currentState
-        if processed == false {
+        if !processed {
             for handler in definition.handlers.noTransition {
-                handler(currentState, event)
+                handler(state, event)
                 processed = true
             }
         }
         
         // call general 'no transition' handler
-        if processed == false {
-            callNoTransitionHandler(state: currentState, event: event)
+        if !processed {
+            callNoTransitionHandler(state: state, event: event)
         }
         
-        print("\(currentState), \(finishState), \(currentState == finishState)")
+        logger.debugLog("after process: \(String(describing: currentState))")
+        
         if currentState == finishState {
-            callFinishHandler(state: currentState, isTerminating: false)
+            callFinishHandler(state: state, isTerminating: false)
             started = false
         }
     }
@@ -207,42 +225,34 @@ public class FSMachineBasic<State, Event> : FSMachineProtocol where State: Hasha
         }
     }
     
-    public func isStarted() -> Bool {
-        return started
-    }
+   // MARK: Private
     
-    public func getCurrentState() -> State? {
-        return currentState
-    }
-    
-    // MARK:
-    
-    private func updateState(newState state: State, withEvent event: Event?) -> State {
-        print("State changed from \(currentState) to \(state)")
+    private func updateState(newState: State, withEvent event: Event?) -> State {
+        logger.debugLog("State changed from \(String(describing: currentState)) to \(newState)")
         
         // 1. Run leave handlers for currentState
         // 2. Change state (currentState = newState)
         // 3. Run enter handlers for new currentState
         
-        if let currentState = currentState {
-            if let handlers = machine[currentState]?.handlers.leave {
+        if let state = currentState {
+            if let handlers = machine[state]?.handlers.leave {
                 for handler in handlers {
-                    handler(currentState, event)
+                    handler(state, event)
                 }
             }
         }
         
-        currentState = state
+        _currentState = newState
         
-        if let currentState = self.currentState {
-            if let handlers = machine[currentState]?.handlers.enter {
+        if let state = self.currentState {
+            if let handlers = machine[state]?.handlers.enter {
                 for handler in handlers {
-                    handler(currentState, event)
+                    handler(state, event)
                 }
             }
         }
         
-        return state
+        return newState
     }
     
     private func callNoTransitionHandler(state: State, event: Event?) {
@@ -257,7 +267,7 @@ public class FSMachineBasic<State, Event> : FSMachineProtocol where State: Hasha
         }
     }
     
-    // MARK:
+    // MARK: Types
     
     typealias Transition = (condition: ConditionBlock?, stateTo: State)
     typealias Transitions = [Transition]
@@ -266,15 +276,19 @@ public class FSMachineBasic<State, Event> : FSMachineProtocol where State: Hasha
     typealias StateDefinition = (transitionsMap: TransitionsMap, handlers: StateHandlers)
     typealias Machine = [State: StateDefinition]
     
-    var machine: Machine = [:]
-    var currentState: State?
+    // MARK: Private
     
-    var started = false
+    internal var machine: Machine = [:]
+    internal var _currentState: State?
     
-    var initialState: State?
-    var finishState: State?
+    internal var started = false
     
-    var noTransitionHandler: HandlerBlock?
-    var finishHandler: FinishBlock?
-    var errorHandler: ((Error) -> Void)
+    internal var initialState: State?
+    internal var finishState: State?
+    
+    internal var noTransitionHandler: HandlerBlock!
+    internal var finishHandler: FinishBlock!
+    internal var errorHandler: ErrorBlock!
+    
+    internal var _logger: FSMLogger = FSMSimpleLogger()
 }
